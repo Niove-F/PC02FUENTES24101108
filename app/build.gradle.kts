@@ -65,4 +65,9 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.14.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    // Retrofit para peticiones HTTP
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    // Conversor de Gson para convertir JSON a clases de Kotlin
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

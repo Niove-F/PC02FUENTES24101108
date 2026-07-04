@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.pc02fuentes24101108.data.remote.FirebaseFirestoreManager
+import com.example.pc02fuentes24101108.data.remote.RetrofitClient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,18 +34,29 @@ fun HomeScreen() {
 
     val currencies = listOf("USD", "EUR", "PEN", "GBP", "JPY")
 
-    // Estado dinámico para las tasas (con un fallback local por si la red falla)
+    // Tu estado de tasas mantiene el fallback inicial por si no hay internet temporalmente
     var exchangeRates by remember {
         mutableStateOf(
-            mapOf("USD" to 1.0, "EUR" to 0.925, "PEN" to 3.75, "GBP" to 0.79, "JPY" to 155.0)
+            mapOf("USD" to 1.0, "EUR" to 0.92, "PEN" to 3.75, "GBP" to 0.79, "JPY" to 155.0)
         )
     }
 
-    // Cargar las tasas desde Firestore al entrar a la pantalla
+    // Consultar la API al cargar la pantalla
     LaunchedEffect(Unit) {
-        val result = FirebaseFirestoreManager.getExchangeRates()
-        if (result.isSuccess && result.getOrNull()?.isNotEmpty() == true) {
-            exchangeRates = result.getOrThrow()
+        try {
+            // Consultamos las tasas tomando como base el USD
+            val response = RetrofitClient.apiService.getLatestRates("USD")
+
+            // Filtramos solo las monedas que nos interesan para limpiar el mapa
+            val filteredRates = response.conversion_rates.filterKeys { it in currencies }
+
+            if (filteredRates.isNotEmpty()) {
+                exchangeRates = filteredRates
+                Toast.makeText(context, "Tasas actualizadas desde la API", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Error al conectar con la API, usando datos locales", Toast.LENGTH_LONG).show()
         }
     }
 
