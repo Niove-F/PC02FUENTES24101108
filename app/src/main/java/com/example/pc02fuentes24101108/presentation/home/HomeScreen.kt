@@ -44,10 +44,12 @@ fun HomeScreen() {
     // Consultar la API al cargar la pantalla
     LaunchedEffect(Unit) {
         try {
-            // Consultamos las tasas tomando como base el USD
-            val response = RetrofitClient.apiService.getLatestRates("USD")
+            // Le pasamos la API Key guardada en el cliente y la moneda base (USD)
+            val response = RetrofitClient.apiService.getLatestRates(
+                apiKey = RetrofitClient.API_KEY,
+                base = "USD"
+            )
 
-            // Filtramos solo las monedas que nos interesan para limpiar el mapa
             val filteredRates = response.conversion_rates.filterKeys { it in currencies }
 
             if (filteredRates.isNotEmpty()) {
@@ -56,7 +58,8 @@ fun HomeScreen() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Error al conectar con la API, usando datos locales", Toast.LENGTH_LONG).show()
+            val exactError = e.localizedMessage ?: "Error desconocido"
+            Toast.makeText(context, "Error API: $exactError", Toast.LENGTH_LONG).show()
         }
     }
 

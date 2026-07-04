@@ -13,14 +13,17 @@ data class CurrencyResponse(
 
 // 2. Interfaz de endpoints
 interface CurrencyApiService {
-    // Usaremos la API gratuita que no requiere API Key compleja para desarrollo
-    @GET("v4/latest/{base}")
-    suspend fun getLatestRates(@Path("base") base: String): CurrencyResponse
+    @GET("v6/{apiKey}/latest/{base}")
+    suspend fun getLatestRates(
+        @Path("apiKey") apiKey: String,
+        @Path("base") base: String
+    ): CurrencyResponse
 }
 
 // 3. Objeto Singleton de Retrofit
 object RetrofitClient {
-    private const val BASE_URL = "https://api.exchangerate-api.com/"
+    const val API_KEY = "5077af16fdde759828fe12d0"
+    private const val BASE_URL = "https://v6.exchangerate-api.com/"
 
     val apiService: CurrencyApiService by lazy {
         Retrofit.Builder()
